@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node --watch src/index.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --updateSnapshot --detectOpenHandles",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles --forceExit",
     "swagger-autogen": "node swagger.js"
   },
   "repository": {
