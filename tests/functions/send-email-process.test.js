@@ -2,6 +2,9 @@ import { sequelizeConnect } from "../../src/configs/connect.js";
 import { DateTime } from "luxon";
 import { processUser } from "../../src/functions/send-email.js";
 import fetchMock from "jest-fetch-mock";
+import { jest } from "@jest/globals";
+
+jest.useFakeTimers();
 
 describe("processUser", () => {
   beforeAll(async () => {
@@ -12,6 +15,7 @@ describe("processUser", () => {
   beforeEach(() => {
     fetchMock.enableMocks();
     fetchMock.resetMocks();
+    jest.clearAllMocks();
   });
 
   afterAll(async () => {
@@ -36,8 +40,18 @@ describe("processUser", () => {
     const message = "Test Email";
     const type = "anniversary";
 
-    fetchMock.mockResponseOnce("", { status: 200 });
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
+        status: "sent",
+        sentTime: "2022-07-01T14:48:00.000Z",
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
     await processUser(user, message, type);
+    jest.advanceTimersByTime(1000);
   });
 });

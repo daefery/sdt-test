@@ -1,4 +1,3 @@
-import { getUserListRecipient } from "../../src/functions/helper.js";
 import { sequelizeConnect } from "../../src/configs/connect.js";
 import UserModel from "../../src/models/user.js";
 import EmailQueueModel from "../../src/models/email-queue.js";
@@ -13,7 +12,9 @@ const EmailQueue = EmailQueueModel(sequelizeConnect);
 describe("sendEmail", () => {
   beforeAll(async () => {
     // Run migrations and seed data before running the tests
-    const datenow = DateTime.now().toFormat("yyyy-MM-dd");
+    let dateNow = DateTime.now();
+    const dateTomorrow = dateNow.plus({ day: 1 }).toFormat("yyyy-MM-dd");
+    dateNow = dateNow.toFormat("yyyy-MM-dd");
     await sequelizeConnect().sync({ force: true });
     await User.bulkCreate([
       {
@@ -23,8 +24,8 @@ describe("sendEmail", () => {
         email: "test1@gmail.com",
         timezone: "America/New_York",
         event_date: {
-          anniversary: datenow,
-          birthday: datenow,
+          anniversary: dateTomorrow,
+          birthday: dateTomorrow,
         },
       },
       {
@@ -34,15 +35,12 @@ describe("sendEmail", () => {
         email: "test2@gmail.com",
         timezone: "America/New_York",
         event_date: {
-          anniversary: datenow,
-          birthday: datenow,
+          anniversary: dateNow,
+          birthday: dateNow,
         },
       },
     ]);
-    await EmailQueue.bulkCreate([
-      { message: "Test Email 1", user_id: 1 },
-      { message: "Test Email 2", user_id: 2 },
-    ]);
+    await EmailQueue.bulkCreate([{ message: "Test Email 1", user_id: 1 }]);
   });
 
   beforeEach(() => {
@@ -55,18 +53,27 @@ describe("sendEmail", () => {
     await sequelizeConnect().close();
   });
 
-  test("should return users with matching event date", async () => {
+  test("should executing sending email function", async () => {
     const eventType = "anniversary";
+
     fetchMock.mockResponseOnce(
       JSON.stringify({
         status: "sent",
         sentTime: "2022-07-01T14:48:00.000Z",
-      })
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
     );
     await sendEmail(eventType);
   });
 
-  test("should return users with matching event date 123", async () => {
-    await sendEmail(undefined);
+  test("should executing sending email function with error", async () => {
+    fetchMock.mockResponseOnce("", {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+    await sendEmail("test");
   });
 });

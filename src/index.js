@@ -36,7 +36,7 @@ app.listen(port, () => {
 cron.schedule("0 9 * * *", async () => {
   console.log("running a task every day at 9am");
   // birthday
-  await sendEmail();
+  await sendEmail("birthday");
   // anniversary
   await sendEmail("anniversary");
 });
