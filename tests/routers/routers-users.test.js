@@ -3,13 +3,14 @@ import app from "../../src/index.js";
 import { sequelizeConnect } from "../../src/configs/connect.js";
 import UserModel from "../../src/models/user.js";
 import EmailQueueModel from "../../src/models/email-queue.js";
-import { afterEach, beforeEach } from "node:test";
+import { beforeEach } from "node:test";
+import { jest } from "@jest/globals";
 import fetchMock from "jest-fetch-mock";
 
 const User = UserModel(sequelizeConnect);
 const EmailQueue = EmailQueueModel(sequelizeConnect);
 
-describe("User Router", () => {
+describe("Get all users", () => {
   beforeAll(async () => {
     // Run migrations and seed data before running the tests
     await sequelizeConnect().sync({ force: true });
@@ -34,18 +35,17 @@ describe("User Router", () => {
     await sequelizeConnect().close();
   });
 
-  describe("GET /users", () => {
-    beforeEach(() => {
-      fetchMock.resetMocks();
-    });
+  beforeEach(() => {
+    fetchMock.enableMocks();
+    fetchMock.resetMocks();
+  });
 
-    test("should return all users", async () => {
-      const response = await request(app).get("/users");
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveLength(1);
-      expect(response.body[0].first_name).toBe("test");
-      expect(response.body[0].last_name).toBe("test");
-    });
+  test("should return all users", async () => {
+    const response = await request(app).get("/users");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(1);
+    expect(response.body[0].first_name).toBe("test");
+    expect(response.body[0].last_name).toBe("test");
   });
 });
 
@@ -83,6 +83,13 @@ describe("POST /users", () => {
     expect(createdUser.email).toBe(userData.email);
     expect(createdUser.location).toBe(userData.location);
     expect(createdUser.timezone).toBe(userData.timezone);
+  });
+
+  test("should failed to create a new user", async () => {
+    const userData = {};
+
+    const response = await request(app).post("/users").send(userData);
+    expect(response.status).toBe(500);
   });
 });
 
@@ -149,6 +156,19 @@ describe("PUT /users/:id", () => {
 
     expect(response.body).toEqual({ status: "success" });
   });
+
+  test("should return status failed when edit", async () => {
+    const id = "test";
+    const updatedData = {
+      first_name: "Updated",
+      last_name: "User",
+      email: "updated.user@example.com",
+    };
+
+    const response = await request(app).put(`/users/${id}`).send(updatedData);
+
+    expect(response.status).toBe(500);
+  });
 });
 
 describe("DELETE /users/:id", () => {
@@ -185,9 +205,17 @@ describe("DELETE /users/:id", () => {
 
     expect(response.body.status).toEqual("success");
   });
+
+  test("should failed delete a user by id", async () => {
+    const id = "test";
+
+    const response = await request(app).delete(`/users/${id}`);
+
+    expect(response.status).toBe(500);
+  });
 });
 
-describe("DELETE /users/:id", () => {
+describe("INDEX PAGE", () => {
   test("get index page", async () => {
     const response = await request(app).get(`/`).expect(200);
     expect(response.body).toEqual("Hello, TypeScript with Express!");

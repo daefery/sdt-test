@@ -44,6 +44,10 @@ router.put("/:id", async (req, res) => {
     // Extract the ID from the request parameters
     const { id } = req.params;
 
+    if (!parseInt(id)) {
+      throw new Error("Id must in integer format");
+    }
+
     // Update the user with the given ID using the request body
     const response = await User.update(req.body, { where: { id: id } });
 
@@ -62,6 +66,10 @@ router.delete("/:id", async (req, res) => {
   try {
     // Extract the ID from the request parameters
     const { id } = req.params;
+
+    if (!parseInt(id)) {
+      throw new Error("Id must in integer format");
+    }
 
     // Delete the user with the given ID
     const response = await User.destroy({ where: { id: id } });
