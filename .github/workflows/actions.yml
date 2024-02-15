@@ -13,13 +13,13 @@ jobs:
         run: |
           npm install
           npm run test test
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: coverage
       - name: cobertura - Code Coverage
         uses: 5monkeys/cobertura-action@master
         with:
           path: coverage/cobertura-coverage.xml
           minimum_coverage: 75
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: coverage
