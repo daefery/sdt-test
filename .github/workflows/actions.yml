@@ -23,6 +23,7 @@ jobs:
         with:
           path: coverage/cobertura-coverage.xml
           minimum_coverage: 75
+          node-version: 20
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
