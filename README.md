@@ -114,6 +114,6 @@ you can visit on this path `http://localhost:3005/api-docs`
 
 ## Tech Stack
 
-**Server:** Node, Express, sequelize, sqlite3
+**Server:** Node JS, Javascript, Express, sequelize, sqlite3
 
 **Plugins:** dotenv, jest, supertest, luxon, node-cron
