@@ -18,3 +18,5 @@ jobs:
         with:
           name: code-coverage-report
           path: coverage
+      - name: Barecheck - Code Coverage
+        uses: barecheck/code-coverage-action@v1.0.0
